@@ -71,7 +71,8 @@ setwd("/Users/gustavo.silva/OneDrive - Tesouro Nacional/Área de Trabalho/projet
 tab_uf <- read_excel("./dados/dados-originais/tab_ufs.xlsx") %>%
   select(Estado, Nome_estado, REGIAO)
 
-dados_raw_2023 <- read_excel("./dados/dados-originais/quadro_estatais_2023_v3.xlsx", sheet = "lista definitiva") # nolint
+#dados_raw_2023 <- read_excel("./dados/dados-originais/quadro_estatais_2023_v3.xlsx", sheet = "lista definitiva") # nolint
+dados_raw_2023 <- read_excel("./dados/dados-originais/quadro_estatais_2023_v4.xlsx", sheet = "Planilha R") # nolint
 dados_raw_2022 <- read_excel("./dados/dados-originais/quadro_estatais_2022.xlsx", sheet = "Todos") # nolint
 dados_raw_2021 <- read_excel("./dados/dados-originais/quadro_estatais_2021.xlsx", sheet = "Todos") # nolint
 
@@ -422,9 +423,9 @@ situacao_por_ano <- situacao_por_ano %>%
     sit = if_else(sit == "INATIVO", "EM LIQUIDAÇÃO", sit), # Substitui "INATIVO" por "EM LIQUIDAÇÃO"
     sit_dep = case_when(
       sit == "ATIVA"           & dep == "NÃO DEPENDENTE" ~ "ATIVA - Não dependente",
-      sit == "ATIVA"           & dep == "DEPENDENTE"     ~ "ATIVA - dependente",
+      sit == "ATIVA"           & dep == "DEPENDENTE"     ~ "ATIVA - Dependente",
       sit == "EM LIQUIDAÇÃO"   & dep == "NÃO DEPENDENTE" ~ "EM LIQUIDAÇÃO - Não dependente",
-      sit == "EM LIQUIDAÇÃO"   & dep == "DEPENDENTE"     ~ "EM LIQUIDAÇÃO - dependente",
+      sit == "EM LIQUIDAÇÃO"   & dep == "DEPENDENTE"     ~ "EM LIQUIDAÇÃO - Dependente",
       TRUE ~ paste(sit, dep, sep = " - ") # fallback para eventuais casos
     )
   )
@@ -432,9 +433,9 @@ situacao_por_ano <- situacao_por_ano %>%
 # Cores personalizadas
 cores_personalizadas <- c(
   "ATIVA - Não dependente"        = "#006400", 
-  "ATIVA - dependente"            = "#e67e00", 
+  "ATIVA - Dependente"            = "#e67e00", 
   "EM LIQUIDAÇÃO - Não dependente" = "#6bb56b",
-  "EM LIQUIDAÇÃO - dependente"     = "#ffba65"
+  "EM LIQUIDAÇÃO - Dependente"     = "#ffba65"
 )
 
 # Criando o gráfico
@@ -619,46 +620,46 @@ ggsave("./plots_final/evolucao_lucros_prejuizos.jpeg", width = 10, height = 7, d
 ###############################################################################################################################################
 
 
-ggplot(pl_distribuicao, aes(x = "", y = pct, fill = plr_rva)) +
-  geom_col(
-    width = 1,
-    color = NA,    # remove linha de borda
-    size = 0,      # zera a espessura (importante!)
-    linejoin = "round"
-  ) +
-  coord_polar("y", start = 0, clip = "off") +
-  # Remove qualquer expansão extra no eixo
-  scale_x_discrete(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
-  facet_wrap(~ Ano, ncol = 3) +
-  geom_text(
-    aes(label = scales::percent(pct, accuracy = 0.1)),
-    position = position_stack(vjust = 0.5),
-    size = 15,
-    color = "white"
-  ) +
-  scale_fill_manual(
-    values = c("Distribuído" = "#735D36", "Não Distribuído" = "#F4C773"),
-    name = "PLR/RVA"
-  ) +
-  labs(
-    title = "",
-    x = NULL,
-    y = NULL
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text = element_blank(),
-    axis.ticks = element_blank(),
-    panel.grid = element_blank(),
-    panel.spacing = unit(0, "lines"),
-    legend.position = "bottom",  # Move a legenda para a parte inferior
-    legend.text = element_text(size = 25),  # Aumenta o tamanho do texto da legenda
-    legend.title = element_text(size = 26, face = "bold"),  # Aumenta o título da legenda
-    strip.text = element_text(size = 30, face = "bold")
-  )
-
-ggsave("./plots_final/distribuicao_PL.jpeg", width = 15, height = 10)
+#ggplot(pl_distribuicao, aes(x = "", y = pct, fill = plr_rva)) +
+#  geom_col(
+#    width = 1,
+#    color = NA,    # remove linha de borda
+#    size = 0,      # zera a espessura (importante!)
+#    linejoin = "round"
+#  ) +
+#  coord_polar("y", start = 0, clip = "off") +
+#  # Remove qualquer expansão extra no eixo
+#  scale_x_discrete(expand = c(0, 0)) +
+#  scale_y_continuous(expand = c(0, 0)) +
+#  facet_wrap(~ Ano, ncol = 3) +
+#  geom_text(
+#    aes(label = scales::percent(pct, accuracy = 0.1)),
+#    position = position_stack(vjust = 0.5),
+#    size = 15,
+#    color = "white"
+#  ) +
+#  scale_fill_manual(
+#    values = c("Distribuído" = "#735D36", "Não Distribuído" = "#F4C773"),
+#    name = "PLR/RVA"
+#  ) +
+#  labs(
+#    title = "",
+#    x = NULL,
+#    y = NULL
+#  ) +
+#  theme_minimal() +
+#  theme(
+#    axis.text = element_blank(),
+#    axis.ticks = element_blank(),
+#    panel.grid = element_blank(),
+#    panel.spacing = unit(0, "lines"),
+#    legend.position = "bottom",  # Move a legenda para a parte inferior
+#    legend.text = element_text(size = 25),  # Aumenta o tamanho do texto da legenda
+#    legend.title = element_text(size = 26, face = "bold"),  # Aumenta o título da legenda
+#    strip.text = element_text(size = 30, face = "bold")
+#  )
+#
+#ggsave("./plots_final/distribuicao_PL.jpeg", width = 15, height = 10)
 
 
 ##################################################################################################################################################

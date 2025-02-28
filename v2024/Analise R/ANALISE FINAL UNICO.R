@@ -71,7 +71,9 @@ setwd("/Users/gustavo.silva/OneDrive - Tesouro Nacional/Área de Trabalho/projet
 tab_uf <- read_excel("./dados/dados-originais/tab_ufs.xlsx") %>%
   select(Estado, Nome_estado, REGIAO)
 
-dados_raw <- read_excel("./dados/dados-originais/quadro_estatais_v3.xlsx", sheet = "lista definitiva") # nolint
+dados_raw <- read_excel("./dados/dados-originais/quadro_estatais_v4.xlsx", sheet = "Planilha R") # nolint
+#dados_raw <- read_excel("./dados/dados-originais/quadro_estatais_v3.xlsx", sheet = "lista definitiva") # nolint
+
 
 tab_definicoes_setores <- read_excel("./dados/dados-originais/tab_setores.xlsx", sheet = "def") # nolint
 
@@ -1005,40 +1007,56 @@ library(dplyr)
 library(plotly)
 library(htmlwidgets)
 
-# Dados de entrada: Cria uma coluna simplificada para `dep`
+# Ajuste na criação da coluna `dep_simplif`, contemplando a nova categoria
 dados_viz <- dados_selecionados %>%
   mutate(
-    dep_simplif = ifelse(dep == "Dependente", "Dependente", "Não Dependente")
+    dep_simplif = case_when(
+      dep == "Dependente" ~ "Dependente",
+      dep == "Não Dependente Com Indícios De Dependência" ~ "Não Dependente Com Indícios De Dependência",
+      TRUE ~ "Não Dependente"
+    )
   )
 
-# Ordena `dep_simplif` e cria o eixo X numérico dentro de cada setor
+# Definição da ordem dos fatores de `dep_simplif` (ajuste conforme desejar)
 dados_viz <- dados_viz %>%
   mutate(
-    dep_simplif = factor(dep_simplif, levels = c("Dependente", "Não Dependente")),
-    setor = factor(setor, levels = sort(unique(setor), decreasing = TRUE)) # Ordem inversa alfabética do setor
+    dep_simplif = factor(
+      dep_simplif,
+      levels = c("Dependente", 
+                 "Não Dependente Com Indícios De Dependência",
+                 "Não Dependente")
+    ),
+    # Ordem inversa alfabética do setor
+    setor = factor(setor, levels = sort(unique(setor), decreasing = TRUE))
   ) %>%
   group_by(setor) %>%
   arrange(dep_simplif, .by_group = TRUE) %>%
   mutate(x = row_number()) %>%
   ungroup()
 
-# DataFrame auxiliar para categorias da legenda
+# DataFrame auxiliar para manter as categorias na legenda
 legenda_auxiliar <- tibble(
   x = NA,
   setor = NA,
-  dep_simplif = c("Dependente", "Não Dependente")
+  dep_simplif = c("Dependente", 
+                  "Não Dependente Com Indícios De Dependência",
+                  "Não Dependente")
 )
 
 # Une os dados reais com o auxiliar para manter a legenda
 dados_viz_legenda <- bind_rows(dados_viz, legenda_auxiliar)
 
-# Vetor de cores
-vetor_cores <- c("Dependente" = "#f2ac29", "Não Dependente" = "#718c35")
+# Vetor de cores para cada categoria
+vetor_cores <- c(
+  "Dependente" = "#f2ac29",
+  "Não Dependente Com Indícios De Dependência" = "#b19c2f",
+  "Não Dependente" = "#718c35"
+)
 
 # Lista de estados com a opção "Todos"
 estados <- c("Todos", unique(dados_selecionados$Nome_estado))
 
-# Gráfico interativo
+# Criação do gráfico interativo
 grafico_empresas_setor <- plot_ly(
   data = dados_viz_legenda,
   x = ~x,
@@ -1056,18 +1074,20 @@ grafico_empresas_setor <- plot_ly(
   ),
   marker = list(size = 10),
   type = "scatter",
-  mode = "markers"
+  mode = "markers",
+  showlegend = FALSE
 ) %>%
   layout(
     title = list(
-      text = "Ficha básica das empresas por setor",
+      text = "",
       x = 0
     ),
     margin = list(l = 150, r = 30, t = 50, b = 30),
     xaxis = list(
       showgrid = FALSE,
       zeroline = FALSE,
-      showticklabels = FALSE
+      showticklabels = FALSE,
+      visible = FALSE
     ),
     yaxis = list(
       title = "",
@@ -1076,7 +1096,8 @@ grafico_empresas_setor <- plot_ly(
     legend = list(
       title = list(text = ""),
       orientation = "h",
-      x = 0, y = 1.1
+      x = 0, y = 1.1,
+      showlegend = FALSE
     )
   ) %>%
   config(
@@ -1098,7 +1119,6 @@ html_content <- paste0(
   "<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>",
   "</head>",
   "<body>",
-  "<h1>Ficha Básica das Empresas por Setor</h1>",
   "<label for='state-filter'>Selecione o Estado:</label>",
   "<select id='state-filter'>",
   "<option value='Todos'>Todos</option>",
@@ -1129,6 +1149,8 @@ html_content <- paste0(
 writeLines(html_content, html_file)
 
 print(paste("Gráfico com filtro criado em:", html_file))
+
+
 
 
 #####################################################################################################################
@@ -1357,3 +1379,5 @@ html_file <- file.path(caminho_absoluto, "../galeria.html")
 save_html(html, html_file)
 
 print(paste("Galeria HTML criada em:", html_file))
+
+print("Total registros removidos graficos PLR: 8")
