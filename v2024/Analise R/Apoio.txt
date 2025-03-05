@@ -1,0 +1,21 @@
+Código hexadecimal das cores atual: 
+
+Laranja #f2ac29  
+
+verde #718c35  
+
+vermelho: #DC143C  
+
+azul: #008080  
+
+marrom: #735D36 
+
+marrom claro: #F4C773  
+
+Laranja escuro pizza  #FF8C00 (sugestão: #e67e00) 
+
+Laranja claro pizza: #ffba65 
+
+Verde escuro pizza: #006400 
+
+Verde claro pizza: #90EE90 (sugestão #6bb56b) 
